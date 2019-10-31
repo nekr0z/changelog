@@ -51,7 +51,7 @@ func ToVersion(s string) (v Version, err error) {
 			}
 		}
 	} else {
-		err = fmt.Errorf("not a version")
+		err = fmt.Errorf("not semver")
 	}
 	return
 }
