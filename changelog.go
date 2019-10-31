@@ -37,15 +37,15 @@ type Version struct {
 
 // ToVersion converts string to Version (if possible)
 func ToVersion(s string) (v Version, err error) {
-	verString := semver.FindString(s)
-	if verString != "" {
-		major, err := strconv.Atoi(semver.ReplaceAllString(verString, "${major}"))
+	re := regexp.MustCompile(fmt.Sprintf("^%s$", semver.String()))
+	if re.MatchString(s) {
+		major, err := strconv.Atoi(semver.ReplaceAllString(s, "${major}"))
 		if err == nil {
-			minor, err := strconv.Atoi(semver.ReplaceAllString(verString, "${minor}"))
+			minor, err := strconv.Atoi(semver.ReplaceAllString(s, "${minor}"))
 			if err == nil {
-				patch, err := strconv.Atoi(semver.ReplaceAllString(verString, "${patch}"))
+				patch, err := strconv.Atoi(semver.ReplaceAllString(s, "${patch}"))
 				if err == nil {
-					pre := semver.ReplaceAllString(verString, "${prerelease}")
+					pre := semver.ReplaceAllString(s, "${prerelease}")
 					v = Version{Major: major, Minor: minor, Patch: patch, Prerelease: pre}
 				}
 			}
