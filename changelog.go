@@ -106,7 +106,7 @@ func ParseMd(r io.Reader) (cl Changelog, err error) {
 	return cl, err
 }
 
-// ParseDebian reads a Debian changelof into Changelog
+// ParseDebian reads a Debian changelog into Changelog
 func ParseDebian(r io.Reader) (cl Changelog, err error) {
 	cl = make(map[Version]Release)
 	scanner := bufio.NewScanner(r)
