@@ -27,6 +27,10 @@ import (
 	"time"
 )
 
+var (
+	ErrNotSemver = fmt.Errorf("not semver") // string is not a valid semver
+)
+
 // Version is a recognized version (following semver conventions)
 type Version struct {
 	Major      int
@@ -51,7 +55,7 @@ func ToVersion(s string) (v Version, err error) {
 			}
 		}
 	} else {
-		err = fmt.Errorf("not semver")
+		err = ErrNotSemver
 	}
 	return
 }
