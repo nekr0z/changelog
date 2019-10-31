@@ -163,19 +163,21 @@ func TestToVersion(t *testing.T) {
 	testCases := []struct {
 		s string
 		v changelog.Version
+		e error
 	}{
-		{
-			s: "1.1.0",
-			v: changelog.Version{1, 1, 0, ""},
-		},
+		{"1.1.0", changelog.Version{1, 1, 0, ""}, nil},
+		{"51.16.234+14a", changelog.Version{51, 16, 234, ""}, nil},
+		{"4.2.15-pre2.11", changelog.Version{4, 2, 15, "pre2.11"}, nil},
+		{"1.1.0.2", changelog.Version{0, 0, 0, ""}, changelog.ErrNotSemver},
+		{"1.3.-2-15", changelog.Version{0, 0, 0, ""}, changelog.ErrNotSemver},
+		{"v3.2.18-rc1+df8891", changelog.Version{0, 0, 0, ""}, changelog.ErrNotSemver},
 	}
 
 	for _, testCase := range testCases {
 		got, err := changelog.ToVersion(testCase.s)
-		if err != nil {
-			t.Errorf("%s", err)
-		}
-		if got.Major != testCase.v.Major || got.Minor != testCase.v.Minor || got.Patch != testCase.v.Patch || got.Prerelease != testCase.v.Prerelease {
+		if err != testCase.e {
+			t.Errorf("want %s, got %s", testCase.e, err)
+		} else if got.Major != testCase.v.Major || got.Minor != testCase.v.Minor || got.Patch != testCase.v.Patch || got.Prerelease != testCase.v.Prerelease {
 			t.Errorf("want %v, got %v", testCase.v, got)
 		}
 	}
