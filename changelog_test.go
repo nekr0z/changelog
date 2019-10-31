@@ -81,16 +81,16 @@ func TestDebian(t *testing.T) {
 		}
 		want = []byte(`awesomeapp (1.3.1) stable; urgency=medium
 
-* Added: more features
-* Fixed: another bug
-* Fixed: all the bugs
+ * Added: more features
+ * Fixed: another bug
+ * Fixed: all the bugs
 
 -- John Doe <john@doe.me>  Thu, 18 Jul 2019 00:00:00 +0000
 
 awesomeapp (1.3.0) stable; urgency=medium
 
-* Added: a useful feature
-* Fixed: some format discrepancies
+ * Added: a useful feature
+ * Fixed: some format discrepancies
 
 -- John Doe <john@doe.me>  Sat, 13 Jul 2019 00:00:00 +0000
 `)

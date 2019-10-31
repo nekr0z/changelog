@@ -136,8 +136,8 @@ func ParseDebian(r io.Reader) (cl Changelog, err error) {
 				}
 				for scanner.Scan() {
 					line := scanner.Text()
-					if strings.HasPrefix(line, "* ") {
-						line = strings.TrimPrefix(line, "* ")
+					if strings.HasPrefix(line, " * ") {
+						line = strings.TrimPrefix(line, " * ")
 						var chg Change
 						s := strings.SplitN(line, ": ", 2)
 						if len(s) == 2 {
@@ -234,7 +234,7 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 		})
 
 		for _, ch := range rel.Changes {
-			s = s + fmt.Sprintf("* %s: %s\n", ch.Type, ch.Body)
+			s = s + fmt.Sprintf(" * %s: %s\n", ch.Type, ch.Body)
 		}
 
 		s = s + fmt.Sprintf("\n-- %s <%s>  %s\n\n", rel.Maintainer.Name, rel.Maintainer.Email, r.d.Format(time.RFC1123Z))
