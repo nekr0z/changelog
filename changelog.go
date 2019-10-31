@@ -35,6 +35,27 @@ type Version struct {
 	Prerelease string
 }
 
+// ToVersion converts string to Version (if possible)
+func ToVersion(s string) (v Version, err error) {
+	verString := semver.FindString(s)
+	if verString != "" {
+		major, err := strconv.Atoi(semver.ReplaceAllString(verString, "${major}"))
+		if err == nil {
+			minor, err := strconv.Atoi(semver.ReplaceAllString(verString, "${minor}"))
+			if err == nil {
+				patch, err := strconv.Atoi(semver.ReplaceAllString(verString, "${patch}"))
+				if err == nil {
+					pre := semver.ReplaceAllString(verString, "${prerelease}")
+					v = Version{Major: major, Minor: minor, Patch: patch, Prerelease: pre}
+				}
+			}
+		}
+	} else {
+		err = fmt.Errorf("not a version")
+	}
+	return
+}
+
 // Change is one change (usually one line in a changelog)
 type Change struct {
 	Type string // "Added", "Fixed", etc.

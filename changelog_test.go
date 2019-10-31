@@ -158,3 +158,25 @@ func equal(t *testing.T, got, want changelog.Changelog) bool {
 	}
 	return true
 }
+
+func TestToVersion(t *testing.T) {
+	testCases := []struct {
+		s string
+		v changelog.Version
+	}{
+		{
+			s: "1.1.0",
+			v: changelog.Version{1, 1, 0, ""},
+		},
+	}
+
+	for _, testCase := range testCases {
+		got, err := changelog.ToVersion(testCase.s)
+		if err != nil {
+			t.Errorf("%s", err)
+		}
+		if got.Major != testCase.v.Major || got.Minor != testCase.v.Minor || got.Patch != testCase.v.Patch || got.Prerelease != testCase.v.Prerelease {
+			t.Errorf("want %v, got %v", testCase.v, got)
+		}
+	}
+}
