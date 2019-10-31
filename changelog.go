@@ -100,20 +100,15 @@ func ParseMd(r io.Reader) (cl Changelog, err error) {
 		switch {
 		case strings.HasPrefix(line, "## "):
 			verString := semver.FindString(line)
-			if verString != "" {
-				major, er1 := strconv.Atoi(semver.ReplaceAllString(verString, "${major}"))
-				minor, er2 := strconv.Atoi(semver.ReplaceAllString(verString, "${minor}"))
-				patch, er3 := strconv.Atoi(semver.ReplaceAllString(verString, "${patch}"))
-				pre := semver.ReplaceAllString(verString, "${prerelease}")
-				if er1 == nil && er2 == nil && er3 == nil {
-					v := Version{Major: major, Minor: minor, Patch: patch, Prerelease: pre}
-					d, _ := time.Parse(" 2006-01-02", dateRe.FindString(line))
-					if _, ok := cl[v]; ok {
-						err = fmt.Errorf("multiple releases for %s", verString)
-					}
-					cl[v] = Release{Date: d}
-					curVer = &v
+			var v Version
+			v, err = ToVersion(verString)
+			if err == nil {
+				d, _ := time.Parse(" 2006-01-02", dateRe.FindString(line))
+				if _, ok := cl[v]; ok {
+					err = fmt.Errorf("multiple releases for %s", verString)
 				}
+				cl[v] = Release{Date: d}
+				curVer = &v
 			}
 		case strings.HasPrefix(line, "### "):
 			curGrp = strings.TrimPrefix(line, "### ")
@@ -135,66 +130,61 @@ func ParseDebian(r io.Reader) (cl Changelog, err error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		verString := semver.FindString(line)
-		if verString != "" {
-			major, er1 := strconv.Atoi(semver.ReplaceAllString(verString, "${major}"))
-			minor, er2 := strconv.Atoi(semver.ReplaceAllString(verString, "${minor}"))
-			patch, er3 := strconv.Atoi(semver.ReplaceAllString(verString, "${patch}"))
-			pre := semver.ReplaceAllString(verString, "${prerelease}")
-			if er1 == nil && er2 == nil && er3 == nil {
-				var rel Release
-				v := Version{Major: major, Minor: minor, Patch: patch, Prerelease: pre}
-				if _, ok := cl[v]; ok {
-					err = fmt.Errorf("multiple releases for %s", verString)
+		var v Version
+		v, err = ToVersion(verString)
+		if err == nil {
+			var rel Release
+			if _, ok := cl[v]; ok {
+				err = fmt.Errorf("multiple releases for %s", verString)
+			}
+			comps := strings.Split(line, " ")
+			for _, comp := range comps {
+				switch {
+				case strings.HasSuffix(comp, ";"):
+					rel.Distribution = strings.TrimSuffix(comp, ";")
+				case strings.HasPrefix(comp, "urgency="):
+					rel.Urgency = strings.TrimPrefix(comp, "urgency=")
 				}
-				comps := strings.Split(line, " ")
-				for _, comp := range comps {
-					switch {
-					case strings.HasSuffix(comp, ";"):
-						rel.Distribution = strings.TrimSuffix(comp, ";")
-					case strings.HasPrefix(comp, "urgency="):
-						rel.Urgency = strings.TrimPrefix(comp, "urgency=")
+			}
+			for scanner.Scan() {
+				line := scanner.Text()
+				if strings.HasPrefix(line, "  * ") {
+					line = strings.TrimPrefix(line, "  * ")
+					var chg Change
+					s := strings.SplitN(line, ": ", 2)
+					if len(s) == 2 {
+						chg.Type = s[0]
+						chg.Body = s[1]
+					} else {
+						chg.Body = line
 					}
+					rel.Changes = append(rel.Changes, chg)
 				}
-				for scanner.Scan() {
-					line := scanner.Text()
-					if strings.HasPrefix(line, "  * ") {
-						line = strings.TrimPrefix(line, "  * ")
-						var chg Change
-						s := strings.SplitN(line, ": ", 2)
-						if len(s) == 2 {
-							chg.Type = s[0]
-							chg.Body = s[1]
-						} else {
-							chg.Body = line
-						}
-						rel.Changes = append(rel.Changes, chg)
-					}
-					if strings.HasPrefix(line, " -- ") {
-						line = strings.TrimPrefix(line, " -- ")
-						s := strings.Split(line, "  ")
-						if len(s) != 2 {
-							err = fmt.Errorf("can't parse author line for %s", verString)
-							break
-						}
-						var maint Maintainer
-						a := strings.Split(s[0], " <")
-						if len(a) == 2 {
-							maint.Name = a[0]
-							maint.Email = strings.TrimSuffix(a[1], ">")
-						} else {
-							err = fmt.Errorf("error parsing maintainer for %s - no email?", verString)
-							maint.Name = s[0]
-						}
-						rel.Maintainer = maint
-						d, er := time.Parse(time.RFC1123Z, s[1])
-						if er != nil {
-							err = fmt.Errorf("could not parse release date for %s", verString)
-							break
-						}
-						rel.Date = d
-						cl[v] = rel
+				if strings.HasPrefix(line, " -- ") {
+					line = strings.TrimPrefix(line, " -- ")
+					s := strings.Split(line, "  ")
+					if len(s) != 2 {
+						err = fmt.Errorf("can't parse author line for %s", verString)
 						break
 					}
+					var maint Maintainer
+					a := strings.Split(s[0], " <")
+					if len(a) == 2 {
+						maint.Name = a[0]
+						maint.Email = strings.TrimSuffix(a[1], ">")
+					} else {
+						err = fmt.Errorf("error parsing maintainer for %s - no email?", verString)
+						maint.Name = s[0]
+					}
+					rel.Maintainer = maint
+					d, er := time.Parse(time.RFC1123Z, s[1])
+					if er != nil {
+						err = fmt.Errorf("could not parse release date for %s", verString)
+						break
+					}
+					rel.Date = d
+					cl[v] = rel
+					break
 				}
 			}
 		}
