@@ -1,1 +1,1 @@
-[![Build Status](https://travis-ci.org/nekr0z/changelog.svg?branch=master)](https://travis-ci.org/nekr0z/changelog)
+[![Build Status](https://travis-ci.org/nekr0z/changelog.svg?branch=master)](https://travis-ci.org/nekr0z/changelog) [![codecov](https://codecov.io/gh/nekr0z/changelog/branch/master/graph/badge.svg)](https://codecov.io/gh/nekr0z/changelog)
