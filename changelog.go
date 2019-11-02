@@ -221,6 +221,12 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 		if releases[i].v.Patch != releases[j].v.Patch {
 			return releases[i].v.Patch < releases[j].v.Patch
 		}
+		if releases[i].v.Prerelease == "" && releases[j].v.Prerelease != "" {
+			return false
+		}
+		if releases[j].v.Prerelease == "" && releases[i].v.Prerelease != "" {
+			return true
+		}
 		return releases[i].v.Prerelease < releases[j].v.Prerelease
 	})
 
