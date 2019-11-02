@@ -27,6 +27,7 @@ import (
 	"time"
 )
 
+// Error codes
 var (
 	ErrNotSemver = fmt.Errorf("not semver") // string is not a valid semver
 )
@@ -90,6 +91,7 @@ type Maintainer struct {
 	Email string
 }
 
+// Changelog is the complete changelog representation
 type Changelog map[Version]Release
 
 var (
