@@ -39,6 +39,15 @@ type Version struct {
 	Prerelease string
 }
 
+// String implements fmt.Stringer interface for Version
+func (v Version) String() string {
+	s := fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
+	if v.Prerelease != "" {
+		s = fmt.Sprintf("%s-%s", s, v.Prerelease)
+	}
+	return s
+}
+
 // ToVersion converts string to Version (if possible)
 func ToVersion(s string) (v Version, err error) {
 	re := regexp.MustCompile(fmt.Sprintf("^%s$", semver.String()))
@@ -196,18 +205,12 @@ func ParseDebian(r io.Reader) (cl Changelog, err error) {
 	return
 }
 
-// Debian outputs Changelog with debian changelog formatting
-func (cl Changelog) Debian(packageName string) (out []byte, err error) {
-	type release struct {
-		v Version
-		d time.Time
-	}
-	releases := make([]release, 0, len(cl))
+type release struct {
+	v Version
+	d time.Time
+}
 
-	for ver, r := range cl {
-		releases = append(releases, release{v: ver, d: r.Date})
-	}
-
+func sortReleases(releases []release) {
 	sort.SliceStable(releases, func(i, j int) bool {
 		if !releases[i].d.Equal(releases[j].d) {
 			return releases[i].d.Before(releases[j].d)
@@ -229,6 +232,17 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 		}
 		return releases[i].v.Prerelease < releases[j].v.Prerelease
 	})
+}
+
+// Debian outputs Changelog with debian changelog formatting
+func (cl Changelog) Debian(packageName string) (out []byte, err error) {
+	releases := make([]release, 0, len(cl))
+
+	for ver, r := range cl {
+		releases = append(releases, release{v: ver, d: r.Date})
+	}
+
+	sortReleases(releases)
 
 	var s string
 
@@ -243,10 +257,7 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 			rel.Distribution = "stable"
 		}
 
-		ver := fmt.Sprintf("%d.%d.%d", r.v.Major, r.v.Minor, r.v.Patch)
-		if r.v.Prerelease != "" {
-			ver = fmt.Sprintf("%s~%s", ver, r.v.Prerelease)
-		}
+		ver := strings.Replace(r.v.String(), "-", "~", 1)
 
 		s = s + fmt.Sprintf("%s (%s) %s; urgency=%s\n\n", packageName, ver, rel.Distribution, rel.Urgency)
 
