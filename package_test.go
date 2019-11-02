@@ -76,6 +76,7 @@ func TestDebian(t *testing.T) {
 					{"Fixed", "another bug"},
 					{"Fixed", "all the bugs"},
 					{"Added", "more features"},
+					{"", "tested the hell out of everything"},
 				},
 			},
 			changelog.Version{1, 3, 1, "rc"}: changelog.Release{
@@ -89,6 +90,7 @@ func TestDebian(t *testing.T) {
 		}
 		want = []byte(`awesomeapp (1.3.1) stable; urgency=medium
 
+  * tested the hell out of everything
   * Added: more features
   * Fixed: another bug
   * Fixed: all the bugs

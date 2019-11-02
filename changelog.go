@@ -266,7 +266,11 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 		})
 
 		for _, ch := range rel.Changes {
-			s = s + fmt.Sprintf("  * %s: %s\n", ch.Type, ch.Body)
+			if ch.Type == "" {
+				s = s + fmt.Sprintf("  * %s\n", ch.Body)
+			} else {
+				s = s + fmt.Sprintf("  * %s: %s\n", ch.Type, ch.Body)
+			}
 		}
 
 		s = s + fmt.Sprintf("\n -- %s <%s>  %s\n\n", rel.Maintainer.Name, rel.Maintainer.Email, r.d.Format(time.RFC1123Z))
