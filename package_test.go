@@ -60,6 +60,23 @@ func TestParseMd(t *testing.T) {
 	}
 }
 
+func TestParseMdError(t *testing.T) {
+	r := bytes.NewReader([]byte(`
+## [1.2.1] - 2019-04-26
+### Fixed
+- things
+
+## [1.2.1] - 2019-04-25
+### Fixed
+- other things
+`))
+
+	_, err := changelog.ParseMd(r)
+	if err == nil {
+		t.Fatalf("should have given an error")
+	}
+}
+
 func TestDebian(t *testing.T) {
 	var (
 		cl changelog.Changelog = map[changelog.Version]changelog.Release{
@@ -142,6 +159,44 @@ awesomeapp (1.3.0) stable; urgency=medium
 
 	if !equal(t, got, cl) {
 		t.Errorf(" got: %v\nwant: %v", got, want)
+	}
+}
+
+func TestParseDebianError(t *testing.T) {
+	testCases := [][]byte{
+		[]byte(`
+awesomeapp (1.3.0) stable; urgency=medium
+  * did stuff
+ -- John Doe <john@doe.me>  Thu, 18 Jul 2019 00:00:00 +0000
+
+awesomeapp (1.3.0) stable; urgency=medium
+  * did other stuff
+ -- John Doe <john@doe.me>  Sat, 13 Jul 2019 00:00:00 +0000
+`),
+		[]byte(`
+awesomeapp (1.3.0) stable; urgency=medium
+  * did stuff
+ -- meh
+`),
+		[]byte(`
+awesomeapp (1.3.0) stable; urgency=medium
+  * did stuff
+ -- John Doe  Sat, 13 Jul 2019 00:00:00 +0000
+`),
+		[]byte(`
+awesomeapp (1.3.0) stable; urgency=medium
+  * did stuff
+ -- John Doe <john@doe.me>  Mon 13 Jul 2019
+`),
+	}
+
+	for i, testCase := range testCases {
+		r := bytes.NewReader(testCase)
+
+		_, err := changelog.ParseDebian(r)
+		if err == nil {
+			t.Fatalf("case #%d should have given an error", i+1)
+		}
 	}
 }
 
