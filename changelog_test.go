@@ -78,6 +78,14 @@ func TestDebian(t *testing.T) {
 					{"Added", "more features"},
 				},
 			},
+			changelog.Version{1, 3, 1, "rc"}: changelog.Release{
+				Date: time.Date(2019, 7, 17, 0, 0, 0, 0, time.UTC),
+				Changes: []changelog.Change{
+					{"Fixed", "another bug"},
+					{"Fixed", "all the bugs"},
+					{"Added", "more features"},
+				},
+			},
 		}
 		want = []byte(`awesomeapp (1.3.1) stable; urgency=medium
 
@@ -86,6 +94,14 @@ func TestDebian(t *testing.T) {
   * Fixed: all the bugs
 
  -- John Doe <john@doe.me>  Thu, 18 Jul 2019 00:00:00 +0000
+
+awesomeapp (1.3.1~rc) stable; urgency=medium
+
+  * Added: more features
+  * Fixed: another bug
+  * Fixed: all the bugs
+
+ -- John Doe <john@doe.me>  Wed, 17 Jul 2019 00:00:00 +0000
 
 awesomeapp (1.3.0) stable; urgency=medium
 

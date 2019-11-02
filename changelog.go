@@ -133,7 +133,7 @@ func ParseDebian(r io.Reader) (cl Changelog, err error) {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		verString := semver.FindString(line)
+		verString := semver.FindString(strings.Replace(line, "~", "-", 1))
 		var v Version
 		v, err = ToVersion(verString)
 		if err == nil {
@@ -239,7 +239,7 @@ func (cl Changelog) Debian(packageName string) (out []byte, err error) {
 
 		ver := fmt.Sprintf("%d.%d.%d", r.v.Major, r.v.Minor, r.v.Patch)
 		if r.v.Prerelease != "" {
-			ver = fmt.Sprintf("%s-%s", ver, r.v.Prerelease)
+			ver = fmt.Sprintf("%s~%s", ver, r.v.Prerelease)
 		}
 
 		s = s + fmt.Sprintf("%s (%s) %s; urgency=%s\n\n", packageName, ver, rel.Distribution, rel.Urgency)
