@@ -80,14 +80,14 @@ func TestParseMdError(t *testing.T) {
 func TestDebian(t *testing.T) {
 	var (
 		cl changelog.Changelog = map[changelog.Version]changelog.Release{
-			changelog.Version{1, 3, 0, ""}: changelog.Release{
+			{1, 3, 0, ""}: {
 				Date: time.Date(2019, 7, 13, 0, 0, 0, 0, time.UTC),
 				Changes: []changelog.Change{
 					{"Fixed", "some format discrepancies"},
 					{"Added", "a useful feature"},
 				},
 			},
-			changelog.Version{1, 3, 1, ""}: changelog.Release{
+			{1, 3, 1, ""}: {
 				Date: time.Date(2019, 7, 18, 0, 0, 0, 0, time.UTC),
 				Changes: []changelog.Change{
 					{"Fixed", "another bug"},
@@ -96,7 +96,7 @@ func TestDebian(t *testing.T) {
 					{"", "tested the hell out of everything"},
 				},
 			},
-			changelog.Version{1, 3, 1, "rc"}: changelog.Release{
+			{1, 3, 1, "rc"}: {
 				Date: time.Date(2019, 7, 18, 0, 0, 0, 0, time.UTC),
 				Changes: []changelog.Change{
 					{"Fixed", "another bug"},
