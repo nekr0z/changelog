@@ -20,7 +20,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/nekr0z/changelog"
 )
@@ -32,8 +31,6 @@ Flags:
 `
 
 var (
-	t time.Time
-
 	name  = flag.String("n", "Maintainer", "Maintainer name")
 	email = flag.String("e", "maintainer@example.com", "Maintainer email")
 	pack  = flag.String("p", "package", "package name")
@@ -83,7 +80,10 @@ func main() {
 	if err != nil {
 		fatalf("could not write Debian changelog: %v", err)
 	}
-	fout.Sync()
+	err = fout.Sync()
+	if err != nil {
+		fatalf("error: %v", err)
+	}
 }
 
 func fatalf(format string, args ...interface{}) {
