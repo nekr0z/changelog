@@ -14,7 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package changelog provides a way to create, parse and convert changelogs. Currently, only parsing Markdown keep-a-changelog style and Debian changelogs is implemented for input, and only Debian changelog for output.
-package changelog
+package changelog // import "evgenykuznetsov.org/go/changelog"
 
 import (
 	"bufio"

@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nekr0z/changelog"
+	"evgenykuznetsov.org/go/changelog"
 )
 
 const usageText = `changelog is a tool for converting keep-a-changelog-style changelog to Debian changelog.

@@ -17,11 +17,12 @@ package changelog_test
 
 import (
 	"bytes"
-	"github.com/nekr0z/changelog"
 	"os"
 	"sort"
 	"testing"
 	"time"
+
+	"evgenykuznetsov.org/go/changelog"
 )
 
 func TestParseMd(t *testing.T) {
